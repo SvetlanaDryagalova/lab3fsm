@@ -1,90 +1,80 @@
 //Дрягалова Светлана
 //Б18
-
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
 #include <string>
-using namespace std;
 
-enum class CatState {
-    MEOW,
-    EAT,
-    SLEEP,
-    PLAY
+enum Q {
+    q0,
+    q1,
+    q2,
+    q3,
+    q4
 };
 
-enum class PlayAction {
-    OWNERS_FOOT,
-    TOY,
-    WRAP
-};
-
-PlayAction ChoosePlayAction() {
-    int choice = rand() % 3;
-    switch (choice) {
-        case 0:
-            return PlayAction::OWNERS_FOOT;
-        case 1:
-            return PlayAction::TOY;
-        case 2:
-            return PlayAction::WRAP;
+bool isMultipleOfThree(const std::string& input) {
+    Q currentState = q0;
+    for (char c : input) {
+        switch (currentState) {
+            case q0:
+                if (c == '0'){
+                    currentState = q1;
+                } else if (c == '1') {
+                    currentState = q2;
+                } else {
+                    return false;
+                }
+                break;
+            case q1:
+                if (c == '0') {
+                    currentState = q3;
+                } else if (c == '1') {
+                    currentState = q2;
+                } else {
+                    return false;
+                }
+                break;
+            case q2:
+                if (c == '0') {
+                    currentState = q1;
+                } else if (c == '1') {
+                    currentState = q4;
+                } else {
+                    return false;
+                }
+                break;
+            case q3:
+                if (c == '0') {
+                    currentState = q4;
+                } else if (c == '1') {
+                    currentState = q1;
+                } else {
+                    return false;
+                }
+                break;
+            case q4:
+                if (c == '0') {
+                    currentState = q3;
+                } else if (c == '1') {
+                    currentState = q2;
+                } else {
+                    return false;
+                }
+                break;
+        }
+        std::cout<<currentState<<std::endl;
     }
+    return true;
 }
 
 int main() {
-    srand(time(0));
+    std::string input;
+    std::cout << "Enter line with 0 and 1: ";
+    std::cin >> input;
 
-    string name;
-    cout << "Choose your cat's name";
-    cin >> name;
-
-    int time = 7;
-    int is_fed = 0;
-
-    CatState currentState = CatState::MEOW;
-
-    while (time<20) {
-        switch (currentState) {
-            case CatState::MEOW:
-                cout << "time:" << time << endl;
-                cout << "You should feed " << name << endl;
-                currentState = CatState::EAT;
-                cout << "If you have fed " << name << " enter 1" << endl;
-                cin >> is_fed;
-                if (is_fed == 1){
-                    is_fed = 0;
-                    break;
-                }
-
-            case CatState::EAT:
-                cout << "Now " << name << " is eating" << endl;
-                currentState = CatState::SLEEP;
-                break;
-            case CatState::SLEEP:
-                cout << name << " is sleeping" << endl;
-                time = time + 4;
-                currentState = CatState::PLAY;
-                break;
-            case CatState::PLAY: {
-                PlayAction action = ChoosePlayAction();
-                cout << "time:" << time << endl;
-                switch (action) {
-                    case PlayAction::OWNERS_FOOT:
-                        cout << "Save yourself! " << name << " is playing with your foot" << endl;
-                        break;
-                    case PlayAction::TOY:
-                        cout << name << " is playing with toy" << endl;
-                        break;
-                    case PlayAction::WRAP:
-                        cout << name << " is playing with wrap" << endl;
-                        break;
-                }
-                time  = time + 3;
-                currentState = CatState::MEOW;
-                break;
-            }
-        }
+    if (isMultipleOfThree(input)) {
+        std::cout << "Line is accepted" << std::endl;
+    } else {
+        std::cout << "Line is rejected" << std::endl;
     }
 
     return 0;
