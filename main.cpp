@@ -1,7 +1,6 @@
 //Дрягалова Светлана
 //Б18
 #include <iostream>
-#include <string>
 
 enum Q {
     q0,
@@ -61,7 +60,7 @@ bool isMultipleOfThree(const std::string& input) {
                 }
                 break;
         }
-        std::cout<<currentState<<std::endl;
+        std::cout<<"state"<<currentState<<" -> ";
     }
     return true;
 }
@@ -72,10 +71,11 @@ int main() {
     std::cin >> input;
 
     if (isMultipleOfThree(input)) {
-        std::cout << "Line is accepted" << std::endl;
+        std::cout << "finish" << std::endl;
     } else {
         std::cout << "Line is rejected" << std::endl;
     }
 
     return 0;
 }
+
