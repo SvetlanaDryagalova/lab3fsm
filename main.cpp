@@ -1,87 +1,96 @@
 //Дрягалова Светлана
 //Б18
+
 #include <iostream>
+#include <string>
+#include <unordered_set>
+#include <unordered_map>
+#include <vector>
+#include <functional>
 
-using namespace std;
+template <typename State>
+class FiniteAutomat {
+private:
+    std::unordered_set<State> states;
+    std::unordered_set<char> alphabet;
+    std::function<State(State, char)> transition;
+    State current_state;
+    std::unordered_set<State> final_states;
 
-bool fsa() {
-    int array[5][2];
-    int n;
-    for (int i=0; i<5; i++){
-        for (int j=0; j<2; j++){
-            cout << "Enter transition from state"<< i << " if " << j<< " entered"<< endl;
-            cout << "state"<< endl;
-            cin>>n;
-            array[i][j] = n;
+public:
+    FiniteAutomat(const std::unordered_set<State>& states, const std::unordered_set<char>& alphabet,
+                  const std::function<State(State, char)>& transition, State initial_state, const std::unordered_set<State>& final_states)
+        : states(states), alphabet(alphabet), transition(transition), current_state(initial_state), final_states(final_states) {}
+
+    bool operator()(const std::string& input_chain) {
+        for (char symbol : input_chain) {
+            if (alphabet.find(symbol) == alphabet.end()) {
+                return false; // Symbol is not in the alphabet
+            }
+            State next_state = transition(current_state, symbol);
+            if (states.find(next_state) == states.end()) {
+                return false; // Transition led to an invalid state
+            }
+            current_state = next_state;
+        }
+        return final_states.find(current_state) != final_states.end();
+    }
+};
+
+template <typename State>
+class KMPSubstringSearch {
+private:
+    std::string pattern;
+    std::vector<int> prefix_function;
+
+public:
+    KMPSubstringSearch(const std::string& pattern) : pattern(pattern) {
+        size_t m = pattern.length();
+        prefix_function.resize(m);
+
+        prefix_function[0] = 0;
+        int k = 0;
+        for (size_t q = 1; q < m; ++q) {
+            while (k > 0 && pattern[k] != pattern[q]) {
+                k = prefix_function[k - 1];
+            }
+            if (pattern[k] == pattern[q]) {
+                k++;
+            }
+            prefix_function[q] = k;
         }
     }
 
-    string input;
-    cout << "Enter line with 0 and 1: ";
-    cin >> input;
-
-    int currentState = 0;
-    for (char ca : input) {
-        switch (currentState) {
-            case 0:
-                if (ca == '0'){
-                    currentState = array[0][0];
-                } else if (ca == '1') {
-                    currentState = array[1][1];
-                } else {
-                    return false;
-                }
-                break;
-            case 1:
-                if (ca == '0'){
-                    currentState = array[0][0];
-                } else if (ca == '1') {
-                    currentState = array[1][1];
-                } else {
-                    return false;
-                }
-                break;
-            case 2:
-                if (ca == '0') {
-                    currentState = array[2][0];
-                } else if (ca == '1') {
-                    currentState = array[2][1];
-                } else {
-                    return false;
-                }
-                break;
-            case 3:
-                if (ca == '0') {
-                    currentState = array[3][0];
-                } else if (ca == '1') {
-                    currentState = array[3][1];
-                } else {
-                    return false;
-                }
-                break;
-            case 4:
-                if (ca == '0') {
-                    currentState = array[4][0];
-                } else if (ca == '1') {
-                    currentState = array[4][1];
-                } else {
-                    return false;
-                }
-                break;
+    int transition(int state, char symbol) {
+        int q = state;
+        while (q > 0 && pattern[q] != symbol) {
+            q = prefix_function[q - 1];
         }
-        std::cout<<"state"<<currentState<<" -> ";
+        if (pattern[q] == symbol) {
+            q++;
+        }
+        return q;
     }
-    return true;
-}
+};
 
 int main() {
+    std::string text = "ABABDABACDFABABCABAB";
+    std::string pattern = "ABABCABAB";
+    std::unordered_set<size_t> states = {0, 1, 2, 3, 4};
+    std::unordered_set<char> alphabet(text.begin(), text.end());
+    std::unordered_set<size_t> final_states = {4};
+    KMPSubstringSearch<int> kmp(pattern);
 
+    auto transition_function = [&kmp](size_t state, char symbol) {
+        return kmp.transition(state, symbol);
+    };
 
-    if (fsa()) {
-        std::cout << "finish" << std::endl;
+    FiniteAutomat<size_t> automat(states, alphabet, transition_function, 0, final_states);
+
+    if (automat(text)) {
+        std::cout << "Substring found in the text.\n";
     } else {
-        std::cout << "Line is rejected" << std::endl;
+        std::cout << "Substring not found in the text.\n";
     }
-
     return 0;
 }
